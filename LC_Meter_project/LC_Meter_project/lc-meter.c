@@ -30,7 +30,7 @@ ISR (TIMER1_OVF_vect)
 int	main(void)
 {
 	port_init();							// Настраиваем порты
-	usart_init(57600);
+	usart_init(57600);						// Настраиваем USART
 	sei();
 	
 	Timer0 = 0;
@@ -43,16 +43,23 @@ int	main(void)
 		check_battery();
 		
 		measure();
-		char str[6] = {"______\n\r"};
+		count += 255 * Timer0;
+		Timer0 = 0;
+		char str[] = {" ______"};
 		char v_str[6];
 		itoa(count, v_str, 10);
 		memcpy(str, v_str, 6);
 		usart_send_str(str);
+		usart_send_str("\r\n");
 	}
 }
 //------------------------------------------------------------------------------------
 inline static void port_init(void)
 {
+	// Настройка входа Таймера\Счётчика1
+	DDRD &= ~(1<<PD5);						// Пин PD5 настроить как вход
+	PORTD |= (1<<PD5);						// Установить вход с подтяжкой
+	// Настройка портов дисплея
 	D_DDR = 0;								// Настроить порт как вход 
 	D_PORT = 0;								// Выставить режим Hi-Z (высокоимпедансный)
 	/*

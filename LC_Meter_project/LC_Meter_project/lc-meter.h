@@ -15,7 +15,7 @@ PORTx - режим управления состоянием вывода
 #ifndef LC_METER_H_
 #define LC_METER_H_
 
-#define F_CPU				12000000UL			// CPU clock frequency
+#define F_CPU	12000000UL			// CPU clock frequency
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -57,9 +57,9 @@ PORTx - режим управления состоянием вывода
 //--------------------------------------
 
 //--TIMER SETTINGS----------------------
-#define TIMER0_INIT TIMSK |= (1<<TOIE0)						// прерывание по переполнению T/C0 разрешено
-#define TIMER0_START TCCR0 = (1<<CS02)|(1<<CS01)|(1<<CS00)	// продделитель счётчика 0 устанавливаем 1024
-#define TIMER0_STOP TCCR0 = 0								// останавливаем таймер 0
+#define TIMER0_INIT TIMSK |= (1<<TOIE0)									// прерывание по переполнению T/C0 разрешено
+#define TIMER0_START TCCR0 = (1<<CS02)|(0<<CS01)|(1<<CS00); TCNT0 = 0	// продделитель счётчика 0 устанавливаем 1024
+#define TIMER0_STOP TCCR0 = 0											// останавливаем таймер 0
 
 #define TIMER1_INIT 1
 #define TIMER1_START 1
