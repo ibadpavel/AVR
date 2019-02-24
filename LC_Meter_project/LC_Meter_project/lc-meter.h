@@ -19,6 +19,8 @@ PORTx - режим управления состоянием вывода
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util\delay.h>
+#include "uart.h"
 
 //--DISPLAY-1602------------------------
 #define	D_RS_PORT	PORTD
@@ -40,6 +42,28 @@ PORTx - режим управления состоянием вывода
 #define	D_E_DOWN			cbi(D_E_PORT, D_E)
 #define	D_DATA_MODE			sbi(D_RS_PORT, D_RS)
 #define	D_COMMAND_MODE		cbi(D_RS_PORT, D_RS)
+//--------------------------------------
+
+//--ADC SETTINGS------------------------
+// Выбираем источник опорного напряжения AVCC с конденсатором на AVREFF и вход ADC6,
+// выравнивание результата по левому краю
+#define ADC_INIT ADMUX = (0<<REFS1)|(1<<REFS0)|(1<<ADLAR)|(0<<MUX0)|(1<<MUX1)|(1<<MUX2)|(0<<MUX3)
+// Включаем ацп и запускаем одиночное измерение с делителем частоты 128
+#define ADC_START ADCSRA = (1<<ADEN)|(1<<ADSC)|(0<<ADFR)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)
+// Останавливаем АЦП
+#define ADC_STOP ADCSRA &= ~((1<<ADEN)|(1<<ADSC))
+// Проверка готовности измерения
+#define ADC_BUSY ADCSRA&(1<<ADSC)
+//--------------------------------------
+
+//--TIMER SETTINGS----------------------
+#define TIMER0_INIT TIMSK |= (1<<TOIE0)						// прерывание по переполнению T/C0 разрешено
+#define TIMER0_START TCCR0 = (1<<CS02)|(1<<CS01)|(1<<CS00)	// продделитель счётчика 0 устанавливаем 1024
+#define TIMER0_STOP TCCR0 = 0								// останавливаем таймер 0
+
+#define TIMER1_INIT 1
+#define TIMER1_START 1
+#define TIMER1_STOP 1
 //--------------------------------------
 
 #endif LC_METER_H_
