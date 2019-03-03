@@ -9,12 +9,11 @@ void	measure(void);				//
 //void	tune_zero(void);					//
 //------------------------------------------------------------------------------------
 volatile uint8_t		Timer0, Timer1;
-volatile uint16_t		count;
+volatile uint16_t		count, count1;
 //------------------------------------------------------------------------------------
 // USART прерывание принятия пакета
 ISR (USART_RXC_vect)
 {
-	
 }
 // Timer0 прерывание переполнения
 ISR (TIMER0_OVF_vect)
@@ -47,7 +46,7 @@ int	main(void)
 		Timer0 = 0;
 		char str[] = {" ______"};
 		char v_str[6];
-		itoa(count, v_str, 10);
+		itoa(count1, v_str, 10);
 		memcpy(str, v_str, 6);
 		usart_send_str(str);
 		usart_send_str("\r\n");
@@ -58,10 +57,13 @@ inline static void port_init(void)
 {
 	// Настройка входа Таймера\Счётчика1
 	DDRD &= ~(1<<PD5);						// Пин PD5 настроить как вход
-	PORTD |= (1<<PD5);						// Установить вход с подтяжкой
+	PORTD &= ~(1<<PD5);						// Установить вход Hi-Z (высокоимпедансный)
+	DDRD &= ~(1<<PD2);						// DDRD2 вход
+	PORTD |= (1<<PD2);						// Кнопка с подтяжкой
 	// Настройка портов дисплея
-	D_DDR = 0;								// Настроить порт как вход 
-	D_PORT = 0;								// Выставить режим Hi-Z (высокоимпедансный)
+	//D_DDR = 0;								// Настроить порт как вход 
+	//D_PORT = 0;								// Выставить режим Hi-Z (высокоимпедансный)
+	
 	/*
 	DDRB |= (1<<EN_C)|(1<<EN_L);	// ¬ыходы
 
@@ -95,13 +97,21 @@ inline static void check_battery(void)
 //------------------------------------------------------------------------------------
 void measure(void)
 {
+	/*
 	TIMER0_INIT;
 	TIMER0_START;
-	
+	_delay_ms(25);
+	TIMER0_STOP;
+	count = TCNT0;
+	*/
+	//---------------------------------------
+	TIMER1_INIT;
+	TIMER1_START;
+
 	_delay_ms(25);
 	
-	TIMER0_STOP;
-
-	count = TCNT0;
+	TIMER1_STOP;
+	count1 = TCNT1L;
+	count1 = count1 | (TCNT1H<<8);
 }
 //------------------------------------------------------------------------------------

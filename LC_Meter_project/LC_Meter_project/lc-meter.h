@@ -57,13 +57,15 @@ PORTx - режим управления состоянием вывода
 //--------------------------------------
 
 //--TIMER SETTINGS----------------------
-#define TIMER0_INIT TIMSK |= (1<<TOIE0)									// прерывание по переполнению T/C0 разрешено
-#define TIMER0_START TCCR0 = (1<<CS02)|(0<<CS01)|(1<<CS00); TCNT0 = 0	// продделитель счётчика 0 устанавливаем 1024
-#define TIMER0_STOP TCCR0 = 0											// останавливаем таймер 0
+#define TIMER0_INIT TIMSK |= (1<<TOIE0)										// прерывание по переполнению T/C0 разрешено
+#define TIMER0_START TCCR0 = (1<<CS02)|(0<<CS01)|(1<<CS00); TCNT0 = 0		// продделитель счётчика 0 устанавливаем 1024
+#define TIMER0_STOP TCCR0 = 0												// останавливаем таймер 0
 
-#define TIMER1_INIT 1
-#define TIMER1_START 1
-#define TIMER1_STOP 1
+#define TIMER1_INIT TCCR1A = 0; TCCR1B = (1<<ICNC1); TIMSK |= (1<<TOIE1)	// прерывание по переполнению T/C1 разрешено
+#define TIMER1_START TCCR1B = (1<<CS12)|(1<<CS11)|(1<<CS10); TCNT1H = 0; TCNT1L = 0		// Внешний такт на Т1 по нарастающему фронту
+							  												// Сбросить старший регистр
+							  												// Сбросить младший регистр
+#define TIMER1_STOP TCCR1B = 0												// Остановить таймер 1
 //--------------------------------------
 
 #endif LC_METER_H_
