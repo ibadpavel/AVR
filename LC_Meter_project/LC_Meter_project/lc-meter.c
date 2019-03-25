@@ -26,6 +26,39 @@ ISR (TIMER1_OVF_vect)
 	Timer1++;
 }
 
+/*
+	//-----------------------------------------------
+	uint32_t A = 532800;
+	uint32_t B = 358600;
+
+	uint32_t total = 0;
+	uint32_t fract = 0;
+
+	uint32_t divider = 1;
+
+	uint32_t tmp = B;
+	for (int i = 0; i < 6;) {
+		if (tmp < A) {
+			tmp *= 10;
+			divider *= 10;
+			total *= 10;
+			i++;
+			continue;
+		}
+
+		tmp -= A;
+		total++;
+	}
+	uint32_t total2 = total << 12;
+
+	uint32_t total3 = total2 / divider;
+
+	total = (total3 & 0xFFFFF000) >> 12;
+	fract = ((total3 & 0xFFF) * 100) >> 12;
+	qWarning((QString::number(total) + "," + QString::number(fract) + "pF")
+	.toStdString().c_str());
+	//-----------------------------------------------
+*/
 int	main(void)
 {
 	port_init();							// Настраиваем порты
@@ -56,8 +89,9 @@ int	main(void)
 inline static void port_init(void)
 {
 	// Настройка входа Таймера\Счётчика1
-	DDRD &= ~(1<<PD5);						// Пин PD5 настроить как вход
-	PORTD &= ~(1<<PD5);						// Установить вход Hi-Z (высокоимпедансный)
+	DDRD &= ~(1<<PD5);						// PD5 пин настроить как вход
+	PORTD &= ~(1<<PD5);						// PD5 установить вход Hi-Z (высокоимпедансный)
+	// Настройка портов кнопки
 	DDRD &= ~(1<<PD2);						// DDRD2 вход
 	PORTD |= (1<<PD2);						// Кнопка с подтяжкой
 	// Настройка портов дисплея
@@ -112,6 +146,6 @@ void measure(void)
 	
 	TIMER1_STOP;
 	count1 = TCNT1L;
-	count1 = count1 | (TCNT1H<<8);
+	count1 = count1 | (TCNT1H << 8);
 }
 //------------------------------------------------------------------------------------
