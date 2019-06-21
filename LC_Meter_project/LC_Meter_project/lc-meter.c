@@ -1,3 +1,4 @@
+#include "stdio.h"
 #include "lc-meter.h"
 #include <string.h>
 //------------------------------------------------------------------------------------
@@ -10,6 +11,7 @@ void	measure(void);				//
 //------------------------------------------------------------------------------------
 volatile uint8_t		Timer0, Timer1;
 volatile uint16_t		count, count1;
+volatile uint32_t		freq;
 //------------------------------------------------------------------------------------
 // USART прерывание принятия пакета
 ISR (USART_RXC_vect)
@@ -44,11 +46,11 @@ int	main(void)
 		measure();
 		count += 255 * Timer0;
 		Timer0 = 0;
-		char str[] = {" ______"};
-		char v_str[6];
-		itoa(count1, v_str, 10);
-		memcpy(str, v_str, 6);
-		usart_send_str(str);
+		freq = (Timer1 * 65535 + count1) * 4;
+		Timer1 = 0;
+		char v_str[8];
+		sprintf(v_str, "%06lu", freq);
+		usart_send_str(v_str);
 		usart_send_str("\r\n");
 	}
 }
@@ -108,7 +110,7 @@ void measure(void)
 	TIMER1_INIT;
 	TIMER1_START;
 
-	_delay_ms(25);
+	_delay_ms(250);
 	
 	TIMER1_STOP;
 	count1 = TCNT1L;
