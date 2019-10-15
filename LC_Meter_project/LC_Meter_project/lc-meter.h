@@ -16,6 +16,8 @@ PORTx - режим управления состоянием вывода
 #define LC_METER_H_
 
 #define F_CPU	12000000UL			// CPU clock frequency
+#define IN_CAPACITY 1000			// pF
+#define CALIBRATE_CAPACITY 1000		// pF
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -69,4 +71,11 @@ PORTx - режим управления состоянием вывода
 #define TIMER1_STOP TCCR1B = 0												// остановить таймер 1
 //--------------------------------------
 
-#endif LC_METER_H_
+//--RELAY SETTINGS----------------------
+#define C_RELAY_ON PORTB |= (1<<PB4);		// Замыкаем реле
+#define C_RELAY_OFF PORTB &= ~(1<<PB4);		// Размыкаем реле
+#define CALIB_RELAY_ON PORTB |= (1<<PB5);		// Замыкаем реле
+#define CALIB_RELAY_OFF PORTB &= ~(1<<PB5);		// Размыкаем реле
+//--------------------------------------
+
+#endif //LC_METER_H_
