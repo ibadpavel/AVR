@@ -37,13 +37,14 @@
 #define LCD_END_ROW 0xB8
 #define LCD_X_BIAS 17
 //--SET-PORTS-AND-PINS--------------------------------------------------------
-#define LCD_DDR DDRC
+#define LCD_CSDC_PORT PORTD
+#define LCD_CS PD6
+#define LCD_CD PD7
+
 #define LCD_PORT PORTC
-#define LCD_CS PC0
-#define LCD_SCL PC1
-#define LCD_SDA PC2
-#define LCD_CD PC3
-#define LCD_RST PC4
+#define LCD_SDA PC0
+#define LCD_SCL PC2
+#define LCD_RST PC3
 //----------------------------------------------------------------------------
 extern void init_display();
 extern void sinit_display();

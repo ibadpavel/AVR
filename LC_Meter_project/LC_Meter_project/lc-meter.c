@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "lc-meter.h"
 #include "fixPointNum.h"
+#include "sed1565.h"
 #include <string.h>
 //------------------------------------------------------------------------------------
 inline	static void	port_init(void);		//
@@ -50,12 +51,18 @@ int	main(void)
 {
 	port_init();							// Настраиваем порты
 	usart_init(57600);						// Настраиваем USART
+	
+	init_display();
+	lcd_swap();
+	
 	sei();
 	
 	Timer0 = 0;
 	Timer1 = 0;
 	
 	usart_send_str("UART ready!\r\n");
+	print_st("Hello!", 7, 0, 0);
+	print_st("Dispay is work!", 16, 1, 0);
 	//calibration();
 	//-------------------------------
 	char esc = 13;
@@ -104,12 +111,18 @@ int	main(void)
 			acceptedMenuIndex = 1;
 		}
 		
-		/*measure();
+		measure();
 		//time_m = count0 + 255 * Timer0;
 		//Timer0 = 0;
 		measure_freq = (Timer1 * 65535 + count1) * 4;
 		Timer1 = 0;
 		
+		char str[] = {"Freq: ________"};
+		char v_str[8];
+		sprintf(v_str, "%lu", measure_freq);
+		memcpy(str + 6, v_str, 7);
+		print_st(str, 15, 4, 0);
+		/*
 		fixPointReal coeff_freq = fprDivide(base_freq, measure_freq);
 		coeff_freq = fprMultiple(coeff_freq, coeff_freq);
 		uint32_t measure_cap = abs(fprGetTotal(coeff_freq * IN_CAPACITY) - IN_CAPACITY);
@@ -144,19 +157,6 @@ inline static void port_init(void)
 	// Выход на реле измерения калибровки
 	DDRB |= (1<<PB5);
 	PORTB &= ~(1<<PB5);
-	
-	// Настройка портов дисплея
-	//D_DDR = 0;								// Настроить порт как вход 
-	//D_PORT = 0;								// Выставить режим Hi-Z (высокоимпедансный)
-	
-	/*
-	DDRB |= (1<<EN_C)|(1<<EN_L);	// ¬ыходы
-
-	PORTC |= (1<<B_MODE)|(1<<B_ZERO);	//  нопки на подт¤жке
-	DDRC &= ~(1<<B_MODE)|(1<<B_ZERO);
-	//OFF_RESET;
-	*/
-
 }
 //------------------------------------------------------------------------------------
 inline static void check_battery(void)
@@ -180,6 +180,8 @@ inline static void check_battery(void)
 	memcpy(str + 6, v_str, 2);
 	memcpy(str + 9, v_str + 2, 1);
 	usart_send_str(str);
+	
+	print_st(str, 12, 3, 0);
 }
 //------------------------------------------------------------------------------------
 void calibration(void)
@@ -226,8 +228,6 @@ void measure(void)
 	//count0 = TCNT0;
 	count1 = TCNT1L;
 	count1 = count1 | (TCNT1H << 8);
-	
-	// calculate
 }
 //------------------------------------------------------------------------------------
 void display_menu(void)

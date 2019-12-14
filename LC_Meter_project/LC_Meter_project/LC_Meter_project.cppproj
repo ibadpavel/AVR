@@ -170,6 +170,9 @@
     <Compile Include="fixPointNum.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="font5x7.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="lc-meter.c">
       <SubType>compile</SubType>
     </Compile>
@@ -179,12 +182,23 @@
     <Compile Include="lcd1602.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sed1565.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sed1565.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="uart.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="uart.h">
       <SubType>compile</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="font4x6.asm">
+      <SubType>compile</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

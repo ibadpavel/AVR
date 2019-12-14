@@ -9,12 +9,19 @@ static char v_display[8][19];
 // display initialize
 void init_display()
 {
-	LCD_DDR = 0xff; //configure C port as output
-	LCD_PORT = ((1<<LCD_CS)|   // set CS = 1 deactivate controller
-				(0<<LCD_SCL)|  // clear serial clock
-				(0<<LCD_SDA)|  // clear serial data
-				(0<<LCD_CD)|   // clear Control (0)/display data (1) flag
-				(0<<LCD_RST)); // clear reset
+	DDRC |= (1<<LCD_SDA);		// out
+	DDRC |= (1<<LCD_SCL);		// out
+	DDRC |= (1<<LCD_RST);		// out
+	
+	DDRD |= (1<<LCD_CS);		// out
+	DDRD |= (1<<LCD_CD);		// out
+	
+	LCD_CSDC_PORT |= (1<<LCD_CS);		// set CS = 1 deactivate controller
+	LCD_CSDC_PORT &=  ~(1<<LCD_CD);		// clear Control (0)/display data (1) flag
+	
+	LCD_PORT &= ~((1<<LCD_SCL)|			// clear serial clock
+				 (1<<LCD_SDA)|			// clear serial data
+				 (1<<LCD_RST));			// clear reset
 	//_NOP();
 	_delay_ms(100);
 	
@@ -40,7 +47,7 @@ void sinit_display()
 						 LCD_DISPLAY_START_LINE,	// Display start line set
 						 LCD_DISPLAY_ON};			// Display ON!!! :)
 						 
-	LCD_PORT &= ~(1<<LCD_CS); // set LCD_CS bit in 0
+	LCD_CSDC_PORT &= ~(1<<LCD_CS); // set LCD_CS bit in 0
 	
 	for(int i = 0; i < 12; i++)
 		lcd_putbyte(intab[i]);	
@@ -49,7 +56,7 @@ void sinit_display()
 // send byte to display controller
 void lcd_putbyte(uint8_t ch)
 {
-	LCD_PORT &= ~(1<<LCD_CS); // set LCD_CS bit in 0
+	LCD_CSDC_PORT &= ~(1<<LCD_CS); // set LCD_CS bit in 0
 	int i = 7;
 	while(i >= 0)
 	{
@@ -60,7 +67,7 @@ void lcd_putbyte(uint8_t ch)
 		i--;
 	}
 
-	LCD_PORT |= (1<<LCD_CS); // set LCD_CS bit in 1
+	LCD_CSDC_PORT |= (1<<LCD_CS); // set LCD_CS bit in 1
 }
 
 // transfer virtual screen to the GD50 (Nokia 7110) display
@@ -72,13 +79,13 @@ void lcd_swap()
 	//write 8 pages to LCD display (0..64 rows)
 	while(y < LCD_END_ROW)
 	{
-		LCD_PORT &= ~(1<<LCD_CD); // command
+		LCD_CSDC_PORT &= ~(1<<LCD_CD); // command
 			
 		lcd_putbyte((uint8_t)y);
 		lcd_putbyte((uint8_t)LCD_X_BIAS);
 		//lcd_putbyte((uint8_t)0x02);// what the command???
 			
-		LCD_PORT |= (1<<LCD_CD); // data
+		LCD_CSDC_PORT |= (1<<LCD_CD); // data
 		lcd_putbyte(0);
 		lcd_putbyte(0);
 		lcd_putbyte(0);
@@ -99,10 +106,10 @@ void lcd_swap()
 		y++;
 	}
 	
-	LCD_PORT &= ~(1<<LCD_CD); // command		
+	LCD_CSDC_PORT &= ~(1<<LCD_CD); // command		
 	lcd_putbyte((uint8_t)LCD_END_ROW);
 	lcd_putbyte((uint8_t)LCD_X_BIAS);	
-	LCD_PORT |= (1<<LCD_CD); // data
+	LCD_CSDC_PORT |= (1<<LCD_CD); // data
 	for(int i = 0; i < 19 * 5; i++)
 	{
 		lcd_putbyte(0);	
@@ -184,13 +191,13 @@ void select_row(short number)
 	if( number < 0) return;
 	else if ( number > 7 ) number = 7;
 	
-	LCD_PORT &= ~(1<<LCD_CD); // command
+	LCD_CSDC_PORT &= ~(1<<LCD_CD); // command
 	
 	lcd_putbyte((uint8_t)number + LCD_FIRST_ROW);
 	lcd_putbyte((uint8_t)LCD_X_BIAS);
 	//lcd_putbyte((uint8_t)0x02); what the command???
 	
-	LCD_PORT |= (1<<LCD_CD); // data
+	LCD_CSDC_PORT |= (1<<LCD_CD); // data
 	
 	short byteCounter = 19;
 	do
