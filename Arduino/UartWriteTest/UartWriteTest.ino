@@ -1,11 +1,19 @@
-// the setup routine runs once when you press reset:
+int start_millis = 0;
+volatile byte counter = 0;
+
 void setup() {
-  // initialize serial communication at 9600 bits per second:
-  Serial.begin(57600);
+  Serial.begin(115200);
+
+  pinMode(2, INPUT_PULLUP);
+  attachInterrupt(0, isr, CHANGE);
 }
 
-// the loop routine runs over and over again forever:
+void isr() {
+  counter = digitalRead(2);  
+}
+
 void loop() {
-  Serial.println("UART (57600) ready!");
-  delay(500);        // delay in between reads for stability
+  start_millis = millis();
+  Serial.print(millis() - start_millis);
+  Serial.println(counter); 
 }
