@@ -1,0 +1,7 @@
+{
+    "configuration": "bootloader=no_bootloader,eeprom=keep,BOD=disabled,LTO=Os,clock=8MHz_internal",
+    "board": "MiniCore:avr:8",
+    "programmer": "MiniCore:usbasp",
+    "port": "COM4",
+    "sketch": "PlaneStabilizator.ino"
+}
