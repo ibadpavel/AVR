@@ -49,6 +49,15 @@ void USART::usart_send_str(char *s)
 	}
 }
 
+void USART::usart_bytes_array(char *s, uint16_t size) {
+  static uint16_t current = 0;
+  while (current < size)	{
+    UCSRC = (UCSRC & ((1 << U2X) | (1 << TXC)));
+		while ( (UCSRA & (1 << UDRE)) == 0 );	// White until UDR is not empty
+		UDR = *(s + current++);
+	}
+}
+
 bool USART::data_available()
 {
 	if (USART::bufIndex == 0)

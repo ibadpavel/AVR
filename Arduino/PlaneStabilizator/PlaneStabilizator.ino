@@ -1,46 +1,47 @@
-#include "usart.h"
-#include "MadgwickAHRS.h"
-#include "sensors.h"
-#include "types.h"
-#include <SoftwareSerial.h>
-SoftwareSerial mySoftSerial(2, 3); // RX, TX
+//#include "usart.h"
+#include "Wire.h"
+
+#include <basicMPU6050.h>
+#include "MadgwickOptim.h"
 
 //== GLOBAL STATIC VARIABLES =============
-imu_t imuData;
-Madgwick imuFilter;
+basicMPU6050<> imu;
+MadgwickOptim imuFilter;
+
+float buf[3] = { 0, 0, 0 };  //roll pitch yaws
+
+// Define Slave I2C Address
+#define SLAVE_ADDR 0x55
 //========================================
 
-void setup()
-{
-  USART::usart_init(57600);       // USB-TTL 115200 чёт не работает. только через Serial (жрёт место)
-  mySoftSerial.begin(9600);   // Bluetooth
+void setup() {
+  //ATinny88 LED pin - D0
+  pinMode(0, OUTPUT);
+  //USART::usart_init(57600);  // USB-TTL 115200 чёт не работает. только через Serial (жрёт место)
+
+  // Set registers - Always required
+  imu.setup();
+
+  // Initial calibration of gyro
+  imu.setBias();
+
+  Wire.begin(SLAVE_ADDR);
+  Wire.onRequest(requestEvent);
 }
 
-void loop()
-{
-  mySoftSerial.println("AR_ACC");
-      
-  char buf[6] = {0, 0, 0, 0, 0, 0};
-  //buf[0] = sizeof(imu_t);
-  //buf[1] = sizeof(float);
-  if (USART::data_available()) {
-    USART::usart_read_bytes(buf, 8);
+void requestEvent() {
+  Wire.write((char*)&buf[0], sizeof(float) * 3);
+}
 
-    USART::usart_send_str("Rx: ");
-    USART::usart_send_str(buf);
-    USART::usart_send_str("\r\n");
-  }// else {
-  //  USART::usart_send_str("Empty buf\r\n");
-  //}
+void loop() {
+  imuFilter.updateIMU(imu.ax(), imu.ay(), imu.az(), imu.gx(), imu.gy(), imu.gz());
 
-  getSensors(&imuData);
-  imuFilter.updateIMU(imuData.ax, imuData.ay, imuData.az, imuData.gx, imuData.gy, imuData.gz);
+  buf[0] = imuFilter.getRoll();
+  buf[1] = imuFilter.getPitch();
+  buf[2] = imuFilter.getYaw();
 
-  delay(500);
-  
-  //buf[0] = (uint8_t)imuFilter.getRoll();
-  //buf[1] = (uint8_t)imuFilter.getPitch();
-  //buf[2] = (uint8_t)imuFilter.getYaw();
-  //USART::usart_send_str(buf);
-  USART::usart_send_str("NL\r\n");
+  //USART::usart_bytes_array((char*)&buf[0], sizeof(float));
+  //USART::usart_bytes_array((char*)&buf[1], sizeof(float));
+  //USART::usart_bytes_array((char*)&buf[2], sizeof(float));
+  //USART::usart_send_str("eee");
 }
